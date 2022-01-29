@@ -7,6 +7,7 @@ import UserRepository from "../../repositories/userRepository";
 import mapper from "../../lib/mapper";
 import UserDto from "../../mappings/dtos/user.dto";
 import UserType from "../../mappings/types/user.type";
+import IUser from "../models/interfaces/iUser";
 
 const userRepository = new UserRepository();
 
@@ -51,7 +52,7 @@ export const store = async (req: Request, res: Response) => {
     res.send(mapper.map(user, UserDto, UserType))
   }).catch((err) => {
     res.send(err);
-  })
+  });
 }
 
 export const update = async (req: Request, res: Response) => {
@@ -59,6 +60,14 @@ export const update = async (req: Request, res: Response) => {
 
   if (!errors.isEmpty()) {
     return res.status(400).json({errors: errors.array()});
+  }
+
+  const authUser = mapper.map(req.user, UserDto, UserType);
+
+  const emailExist = await userRepository.findByEmail(req.body.email);
+
+  if (emailExist && authUser.id !== emailExist.id) {
+    return res.status(422).send({error: "User with this email already exists"})
   }
 
   const updatedUser = {

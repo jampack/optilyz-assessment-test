@@ -22,12 +22,13 @@ passport.use(jwtAuthStrategy);
 // All the routes
 app.get('/users', authOnly, userController.index);
 app.get('/users/:id', authOnly, userController.show);
-app.post('/users', userController.validate('createUser'), userController.store);
+app.post('/users', authOnly, userController.validate('createUser'), userController.store);
 app.put('/users', authOnly, userController.validate('updateUser'), userController.update);
 app.patch('/users', authOnly, userController.validate('updateUserPartial'), userController.update);
 app.delete('/users/:id', authOnly, userController.destroy);
 
 app.post('/auth/login', authController.validate('loginUser'), authController.login);
+app.post('/auth/register', authController.validate('registerUser'), authController.register);
 
 // Connect to mongoDB
 mongoDBService();
