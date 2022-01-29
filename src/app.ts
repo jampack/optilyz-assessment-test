@@ -4,6 +4,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import * as userController from "./app/controllers/usersController";
 import * as authController from "./app/controllers/authController";
+import * as taskController from "./app/controllers/tasksController";
 import mongoDBService from "./services/database.service";
 import passport from "passport";
 import jwtAuthStrategy from "./app/strategies/auth/jwt.auth.strategy";
@@ -20,6 +21,9 @@ app.use(bodyParser.json());
 passport.use(jwtAuthStrategy);
 
 // All the routes
+app.post('/auth/login', authController.validate('loginUser'), authController.login);
+app.post('/auth/register', authController.validate('registerUser'), authController.register);
+
 app.get('/users', authOnly, userController.index);
 app.get('/users/:id', authOnly, userController.show);
 app.post('/users', authOnly, userController.validate('createUser'), userController.store);
@@ -27,15 +31,14 @@ app.put('/users', authOnly, userController.validate('updateUser'), userControlle
 app.patch('/users', authOnly, userController.validate('updateUserPartial'), userController.update);
 app.delete('/users/:id', authOnly, userController.destroy);
 
-app.post('/auth/login', authController.validate('loginUser'), authController.login);
-app.post('/auth/register', authController.validate('registerUser'), authController.register);
+app.post('/tasks', authOnly, taskController.validate('createTask'), taskController.store);
 
 // Connect to mongoDB
 mongoDBService();
 
 app.listen(port, () => {
   // tslint:disable-next-line:no-console
-  console.info(`server started at http://localhost:${port}`);
+  console.info(`🔥 Server started at http://localhost:${port} 🚀`);
 });
 
 export default app;
