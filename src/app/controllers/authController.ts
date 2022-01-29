@@ -7,6 +7,7 @@ import {body, validationResult} from "express-validator";
 import bcrypt from "bcryptjs";
 import {generateJWT, generateRefreshJWT} from "../../services/auth.service";
 import User from "../models/user";
+import IUser from "../models/interfaces/iUser";
 
 const userRepository = new UserRepository();
 
@@ -52,7 +53,7 @@ export const register = async (req: Request, res: Response) => {
     password: hash,
   });
 
-  userRepository.create(newUser).then((user) => {
+  userRepository.create(newUser).then((user: IUser) => {
     const token = generateJWT(user);
     const refreshToken = generateRefreshJWT(user);
 

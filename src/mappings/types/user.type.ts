@@ -10,4 +10,10 @@ export default class UserType {
   email: string
 
   password: string
+
+  @AutoMap()
+  createdAt: string
+
+  @AutoMap()
+  updatedAt: string
 }

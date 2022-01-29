@@ -8,4 +8,10 @@ export default class UserDto {
 
   @AutoMap()
   email: string
+
+  @AutoMap()
+  createdAt: string
+
+  @AutoMap()
+  updatedAt: string
 }
