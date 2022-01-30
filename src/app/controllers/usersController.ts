@@ -20,6 +20,10 @@ export const index = async (req: Request, res: Response) => {
 }
 
 export const show = async (req: Request, res: Response) => {
+  if (!req.params.id) {
+    return res.status(400).send("No id provided");
+  }
+
   userRepository.findById(req.params.id).then((user) => {
     res.send(mapper.map(user, UserDto, UserType));
   }).catch((err) => {
@@ -65,7 +69,6 @@ export const update = async (req: Request, res: Response) => {
   const authUser = mapper.map(req.user, UserDto, UserType);
 
   const emailExist = await userRepository.findByEmail(req.body.email);
-
   if (emailExist && authUser.id !== emailExist.id) {
     return res.status(422).send({error: "User with this email already exists"})
   }
@@ -82,7 +85,44 @@ export const update = async (req: Request, res: Response) => {
   })
 }
 
+export const patch = async (req: Request, res: Response) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({errors: errors.array()});
+  }
+
+  const authUser = mapper.map(req.user, UserDto, UserType);
+
+  if(req.body.email){
+    const emailExist = await userRepository.findByEmail(req.body.email);
+
+    if (emailExist && authUser.id !== emailExist.id) {
+      return res.status(422).send({error: "User with this email already exists"})
+    }
+  }
+
+  const previousData = await userRepository.findById(req.body.id);
+
+  const updatedUser = {
+    name: req.body.name ? req.body.name : previousData.name,
+    email: req.body.email ? req.body.email : previousData.email,
+  };
+
+  userRepository.update(req.body.id, updatedUser).then((user) => {
+    res.send(mapper.map(user, UserDto, UserType));
+  }).catch((err) => {
+    // tslint:disable-next-line:no-console
+    console.log(err);
+    res.send(err);
+  })
+}
+
 export const destroy = async (req: Request, res: Response) => {
+  if (!req.params.id) {
+    return res.status(400).send("No id provided");
+  }
+
   userRepository.delete(req.params.id).then((user) => {
     res.send(mapper.map(user, UserDto, UserType));
   }).catch((err) => {
@@ -117,26 +157,17 @@ export const validate = (method: string) => {
           max: 100
         }),
         body('email', 'Invalid email').notEmpty().isEmail(),
-        body('password', 'Password is required').notEmpty(),
-        body('password', 'Password has to be at least 8 characters and maximum of 100 characters').isLength({
-          min: 8,
-          max: 100
-        })
       ]
     }
 
-    case 'updateUserPartial': {
+    case 'patchUser': {
       return [
         body('id', "ID is required").notEmpty(),
-        body('name', "Name cannot be shorter then 2 characters and longer then 100 characters").isLength({
+        body('name', "Name cannot be shorter then 2 characters and longer then 100 characters").if(body('name')).isLength({
           min: 2,
           max: 100
         }),
-        body('email', 'Invalid email').isEmail(),
-        body('password', 'Password has to be at least 8 characters and maximum of 100 characters').isLength({
-          min: 8,
-          max: 100
-        })
+        body('email', 'Invalid email').if(body('email').exists()).isEmail(),
       ]
     }
   }

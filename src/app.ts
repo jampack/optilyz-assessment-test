@@ -28,7 +28,7 @@ app.get('/users', authOnly, userController.index);
 app.get('/users/:id', authOnly, userController.show);
 app.post('/users', authOnly, userController.validate('createUser'), userController.store);
 app.put('/users', authOnly, userController.validate('updateUser'), userController.update);
-app.patch('/users', authOnly, userController.validate('updateUserPartial'), userController.update);
+app.patch('/users', authOnly, userController.validate('patchUser'), userController.patch);
 app.delete('/users/:id', authOnly, userController.destroy);
 
 app.post('/tasks', authOnly, taskController.validate('createTask'), taskController.store);
