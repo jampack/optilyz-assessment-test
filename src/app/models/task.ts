@@ -5,6 +5,7 @@ export const TaskSchema = new mongoose.Schema({
   description: {type: String},
   completeBefore: {type: Date, required: true},
   notifyAt: {type: Date, required: true},
+  isComplete: {type: Boolean, default: false},
   creator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

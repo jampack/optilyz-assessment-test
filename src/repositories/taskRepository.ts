@@ -4,7 +4,15 @@ import Task from "../app/models/task";
 
 class TaskRepository extends RepositoryBase<ITask> {
   constructor() {
-    super(Task)
+    super(Task);
+    this._populate = [
+      {
+        path: "creator",
+      },
+      {
+        path: "assignee"
+      }
+    ];
   }
 }
 

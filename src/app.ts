@@ -31,7 +31,12 @@ app.put('/users', authOnly, userController.validate('updateUser'), userControlle
 app.patch('/users', authOnly, userController.validate('patchUser'), userController.patch);
 app.delete('/users/:id', authOnly, userController.destroy);
 
+app.get('/tasks', authOnly, taskController.index);
+app.get('/tasks/:id', authOnly, taskController.show);
 app.post('/tasks', authOnly, taskController.validate('createTask'), taskController.store);
+app.put('/tasks', authOnly, taskController.validate('updateTask'), taskController.update);
+app.patch('/tasks', authOnly , taskController.validate('patchTask'), taskController.patch);
+app.delete('/tasks/:id', authOnly, taskController.destroy);
 
 // Connect to mongoDB
 mongoDBService();

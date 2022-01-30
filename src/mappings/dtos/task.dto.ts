@@ -1,4 +1,5 @@
 import {AutoMap} from "@automapper/classes";
+import UserDto from "./user.dto";
 
 export default class TaskDto {
   id: string
@@ -14,6 +15,13 @@ export default class TaskDto {
 
   @AutoMap()
   notifyAt: string
+
+  @AutoMap()
+  isComplete: boolean
+
+  creator: UserDto
+
+  assignee: UserDto
 
   @AutoMap()
   createdAt: string

@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 class RepositoryBase<T extends mongoose.Document> implements IRepository<T> {
 
   private _model: mongoose.Model<mongoose.Document>;
+  protected _populate: string | object[] = '';
 
   constructor(schemaModel: mongoose.Model<mongoose.Document>) {
     this._model = schemaModel;
@@ -17,7 +18,7 @@ class RepositoryBase<T extends mongoose.Document> implements IRepository<T> {
   }
 
   async getAll(): Promise<T[]> {
-    return this._model.find().lean();
+    return this._model.find().populate(this._populate).lean();
   }
 
   async update(_id: string, item: object): Promise<T> {
@@ -33,13 +34,13 @@ class RepositoryBase<T extends mongoose.Document> implements IRepository<T> {
       return null;
     }
 
-    await this._model.remove({_id}).lean();
+    await this._model.deleteOne({_id}).lean();
 
     return model;
   }
 
   async findById(_id: string): Promise<T> {
-    return this._model.findById(_id).lean();
+    return this._model.findById(_id).populate(this._populate).lean();
   }
 }
 

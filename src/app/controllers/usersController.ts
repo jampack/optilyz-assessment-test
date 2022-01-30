@@ -112,8 +112,6 @@ export const patch = async (req: Request, res: Response) => {
   userRepository.update(req.body.id, updatedUser).then((user) => {
     res.send(mapper.map(user, UserDto, UserType));
   }).catch((err) => {
-    // tslint:disable-next-line:no-console
-    console.log(err);
     res.send(err);
   })
 }
@@ -163,12 +161,16 @@ export const validate = (method: string) => {
     case 'patchUser': {
       return [
         body('id', "ID is required").notEmpty(),
-        body('name', "Name cannot be shorter then 2 characters and longer then 100 characters").if(body('name')).isLength({
+        body('name', "Name cannot be shorter then 2 characters and longer then 100 characters").if(body('name').exists()).isLength({
           min: 2,
           max: 100
         }),
         body('email', 'Invalid email').if(body('email').exists()).isEmail(),
       ]
+    }
+
+    default: {
+      throw new Error(`Invalid request validation method: ${method}`);
     }
   }
 }

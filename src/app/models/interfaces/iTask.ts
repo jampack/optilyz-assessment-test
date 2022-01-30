@@ -1,4 +1,5 @@
 import mongoose = require("mongoose");
+import IUser from "./iUser";
 
 interface ITask extends mongoose.Document {
   _id: string;
@@ -6,8 +7,9 @@ interface ITask extends mongoose.Document {
   description: string;
   completeBefore: string;
   notifyAt: string;
-  creator: string;
-  assignee: string;
+  isComplete: boolean;
+  creator: IUser;
+  assignee: IUser;
   createdAt: string;
   updatedAt: string;
 }
