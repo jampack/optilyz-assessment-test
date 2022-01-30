@@ -40,7 +40,7 @@ export const store = async (req: Request, res: Response) => {
   const emailExist = await userRepository.findByEmail(req.body.email);
 
   if (emailExist) {
-    return res.status(422).send({error: "User already exists"})
+    return res.status(400).send({error: "Email already taken"})
   }
 
   const hash = bcrypt.hashSync(req.body.password, 10);
@@ -69,7 +69,7 @@ export const update = async (req: Request, res: Response) => {
 
   const emailExist = await userRepository.findByEmail(req.body.email);
   if (emailExist && authUser.id !== emailExist.id) {
-    return res.status(422).send({error: "User with this email already exists"})
+    return res.status(400).send({error: "User with this email already exists"})
   }
 
   const updatedUser = {
@@ -97,7 +97,7 @@ export const patch = async (req: Request, res: Response) => {
     const emailExist = await userRepository.findByEmail(req.body.email);
 
     if (emailExist && authUser.id !== emailExist.id) {
-      return res.status(422).send({error: "User with this email already exists"})
+      return res.status(400).send({error: "User with this email already exists"})
     }
   }
 

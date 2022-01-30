@@ -67,7 +67,7 @@ export const update = async (req: Request, res: Response) => {
   const isTask = await taskRepository.findById(req.body.id);
 
   if (isTask && authUser.id.toString() !== isTask.creator._id.toString()) {
-    return res.status(422).send({error: "You cannot modify this task"});
+    return res.status(400).send({error: "You cannot modify this task"});
   }
 
   const updatedTask = {
@@ -99,7 +99,7 @@ export const patch = async (req: Request, res: Response) => {
   const isTask = previousData = await taskRepository.findById(req.body.id);
 
   if (isTask && authUser.id.toString() !== isTask.creator._id.toString()) {
-    return res.status(422).send({error: "You cannot modify this task"});
+    return res.status(400).send({error: "You cannot modify this task"});
   }
 
   const updatedTask = {

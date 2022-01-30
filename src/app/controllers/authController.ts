@@ -45,6 +45,12 @@ export const register = async (req: Request, res: Response) => {
     return res.status(400).json({errors: errors.array()});
   }
 
+  const emailExist = await userRepository.findByEmail(req.body.email);
+
+  if (emailExist) {
+    return res.status(400).send({error: "Email already taken"})
+  }
+
   const hash = bcrypt.hashSync(req.body.password, 10);
 
   const newUser = new User({

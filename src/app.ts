@@ -5,12 +5,10 @@ import bodyParser from "body-parser";
 import * as userController from "./app/controllers/usersController";
 import * as authController from "./app/controllers/authController";
 import * as taskController from "./app/controllers/tasksController";
-import mongoDBService from "./services/database.service";
 import passport from "passport";
 import jwtAuthStrategy from "./app/strategies/auth/jwt.auth.strategy";
 import authOnly from "./app/middlewares/authOnly.middleware";
 
-const port = process.env.SERVER_PORT || 8080;
 const app = express();
 
 // Pre-request middlewares
@@ -38,12 +36,4 @@ app.put('/tasks', authOnly, taskController.validate('updateTask'), taskControlle
 app.patch('/tasks', authOnly , taskController.validate('patchTask'), taskController.patch);
 app.delete('/tasks/:id', authOnly, taskController.destroy);
 
-// Connect to mongoDB
-mongoDBService();
-
-app.listen(port, () => {
-  // tslint:disable-next-line:no-console
-  console.info(`🔥 Server started at http://localhost:${port} 🚀`);
-});
-
-export default app;
+export {app};
