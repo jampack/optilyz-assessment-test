@@ -7,7 +7,6 @@ import UserRepository from "../../repositories/userRepository";
 import mapper from "../../lib/mapper";
 import UserDto from "../../mappings/dtos/user.dto";
 import UserType from "../../mappings/types/user.type";
-import IUser from "../models/interfaces/iUser";
 
 const userRepository = new UserRepository();
 
