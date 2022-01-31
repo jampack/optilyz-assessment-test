@@ -17,72 +17,89 @@ describe('POST /auth/register', () => {
         email: 'user1@test.com',
         password: 'P@ssw0rd',
       });
+
       expect(response.statusCode).toBe(200);
+    });
+
+    test('Response should be of type object', async () => {
+      const response = await request(app).post('/auth/register').send({
+        name: 'John Doe',
+        email: 'user2@test.com',
+        password: 'P@ssw0rd',
+      });
+
+      expect(response.body).toBeInstanceOf(Object);
     });
 
     test('Response should contain id attribute', async () => {
       const response = await request(app).post('/auth/register').send({
         name: 'John Doe',
-        email: 'user2@test.com',
+        email: 'user3@test.com',
         password: 'P@ssw0rd',
       });
-      expect(response.body).hasOwnProperty('id');
+
+      expect(typeof response.body.data.user.id).toBe("string");
     });
 
-    test('Response should contain auth token attribute', async () => {
+    test('Response should contain token attribute', async () => {
       const response = await request(app).post('/auth/register').send({
         name: 'John Doe',
-        email: 'user2@test.com',
+        email: 'user4@test.com',
         password: 'P@ssw0rd',
       });
-      expect(response.body).hasOwnProperty('token');
+
+      expect(typeof response.body.data.token).toBe("string");
     });
   });
 
   describe('Given invalid email', () => {
-    test('Should respond with a 400 status code', async () => {
+    test('Should respond with a 422 status code', async () => {
       const response = await request(app).post('/auth/register').send({
         name: 'John Doe',
         email: 'invalid email',
         password: 'P@ssw0rd',
       });
-      expect(response.statusCode).toBe(400);
+
+      expect(response.statusCode).toBe(422);
     });
   });
 
   describe('Given already used email', () => {
 
-    test('Should respond with a 400 status code', async () => {
+    test('Should respond with a 422 status code', async () => {
       const response = await request(app).post('/auth/register').send({
         name: 'John Doe',
         email: 'user1@test.com',
         password: 'P@ssw0rd',
       });
-      expect(response.statusCode).toBe(400);
+
+      expect(response.statusCode).toBe(422);
     });
   });
 
   describe('Given invalid name', () => {
 
-    test('Should respond with a 400 status code', async () => {
+    test('Should respond with a 422 status code', async () => {
       const response = await request(app).post('/auth/register').send({
         name: '',
         email: 'user1@test.com',
         password: 'P@ssw0rd',
       });
-      expect(response.statusCode).toBe(400);
+
+      expect(response.statusCode).toBe(422);
     });
   });
 
   describe('Given invalid password', () => {
 
-    test('Should respond with a 400 status code', async () => {
+    test('Should respond with a 422 status code', async () => {
       const response = await request(app).post('/auth/register').send({
         name: 'John Doe',
         email: `user1@test.com`,
         password: '',
       });
-      expect(response.statusCode).toBe(400);
+
+      expect(response.statusCode).toBe(422);
     });
   });
 });
