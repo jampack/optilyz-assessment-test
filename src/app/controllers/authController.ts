@@ -8,6 +8,11 @@ import bcrypt from "bcryptjs";
 import {generateJWT, generateRefreshJWT} from "../../services/auth.service";
 import User from "../models/user";
 import IUser from "../models/interfaces/iUser";
+import {
+  fieldValidationErrorResponse,
+  notFoundResponse, requestValidationErrorResponse, serverErrorResponse,
+  successResponse
+} from "../../lib/responseWapper";
 
 const userRepository = new UserRepository();
 
@@ -15,40 +20,40 @@ export const login = async (req: Request, res: Response) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({errors: errors.array()});
+    return requestValidationErrorResponse(res, errors.array());
   }
 
   const user = await userRepository.findByEmail(req.body.email);
   if (!user) {
-    return res.status(404).json({
-      message: "User not found"
-    });
+    return notFoundResponse(res, "User not found");
   }
 
   if (!bcrypt.compareSync(req.body.password, user.password)) {
-    return res.status(401).json({
-      message: "Invalid password"
-    });
+    return fieldValidationErrorResponse(res, "password", "Password is incorrect");
   }
 
   const token = generateJWT(user);
   const refreshToken = generateRefreshJWT(user);
 
   const userDto = mapper.map(user, UserDto, UserType);
-  return res.send({user: userDto, token, refreshToken});
+  return successResponse(res, {
+    user: userDto,
+    token,
+    refreshToken
+  });
 };
 
 export const register = async (req: Request, res: Response) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({errors: errors.array()});
+    return requestValidationErrorResponse(res, errors.array());
   }
 
   const emailExist = await userRepository.findByEmail(req.body.email);
 
   if (emailExist) {
-    return res.status(400).send({error: "Email already taken"})
+    return fieldValidationErrorResponse(res, "email", "Email already exist");
   }
 
   const hash = bcrypt.hashSync(req.body.password, 10);
@@ -64,9 +69,13 @@ export const register = async (req: Request, res: Response) => {
     const refreshToken = generateRefreshJWT(user);
 
     const userDto = mapper.map(user, UserDto, UserType);
-    res.send({user: userDto, token, refreshToken})
+    return successResponse(res, {
+      user: userDto,
+      token,
+      refreshToken
+    });
   }).catch((err) => {
-    res.send(err);
+    serverErrorResponse(res, err);
   })
 }
 

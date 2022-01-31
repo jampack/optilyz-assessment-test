@@ -8,26 +8,32 @@ import UserType from "../../mappings/types/user.type";
 import TaskDto from "../../mappings/dtos/task.dto";
 import TaskType from "../../mappings/types/task.type";
 import ITask from "../models/interfaces/iTask";
+import {
+  badRequestResponse, forbiddenResponse, notFoundResponse,
+  requestValidationErrorResponse,
+  serverErrorResponse,
+  successResponse
+} from "../../lib/responseWapper";
 
 const taskRepository = new TaskRepository();
 
 export const index = async (req: Request, res: Response) => {
   taskRepository.getAll().then((tasks) => {
-    res.send(tasks.map((task) => mapper.map(task, TaskDto, TaskType)));
+    successResponse(res, tasks.map((task) => mapper.map(task, TaskDto, TaskType)));
   }).catch((err) => {
-    res.send(err);
+    serverErrorResponse(res, err);
   })
 }
 
 export const show = async (req: Request, res: Response) => {
   if (!req.params.id) {
-    return res.status(400).send("No id provided");
+    return badRequestResponse(res, "Id is required");
   }
 
   taskRepository.findById(req.params.id).then((task) => {
-    res.send(mapper.map(task, TaskDto, TaskType));
+    return successResponse(res, mapper.map(task, TaskDto, TaskType));
   }).catch((err) => {
-    res.send(err);
+    serverErrorResponse(res, err);
   })
 }
 
@@ -35,7 +41,7 @@ export const store = async (req: Request, res: Response) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({errors: errors.array()});
+    return requestValidationErrorResponse(res, errors.array());
   }
 
   const authUser = mapper.map(req.user, UserDto, UserType);
@@ -49,9 +55,9 @@ export const store = async (req: Request, res: Response) => {
   });
 
   taskRepository.create(newTask).then((task) => {
-    res.send(mapper.map(task, TaskDto, TaskType));
+    successResponse(res, mapper.map(task, TaskDto, TaskType));
   }).catch((err) => {
-    res.send(err);
+    serverErrorResponse(res, err);
   });
 };
 
@@ -59,7 +65,7 @@ export const update = async (req: Request, res: Response) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({errors: errors.array()});
+    return requestValidationErrorResponse(res, errors.array());
   }
 
   const authUser = mapper.map(req.user, UserDto, UserType);
@@ -67,7 +73,7 @@ export const update = async (req: Request, res: Response) => {
   const isTask = await taskRepository.findById(req.body.id);
 
   if (isTask && authUser.id.toString() !== isTask.creator._id.toString()) {
-    return res.status(400).send({error: "You cannot modify this task"});
+    return forbiddenResponse(res, "You are not allowed to update this task");
   }
 
   const updatedTask = {
@@ -80,9 +86,9 @@ export const update = async (req: Request, res: Response) => {
   };
 
   taskRepository.update(req.body.id, updatedTask).then((task) => {
-    res.send(mapper.map(task, TaskDto, TaskType));
+    successResponse(res, mapper.map(task, TaskDto, TaskType));
   }).catch((err) => {
-    res.send(err);
+    serverErrorResponse(res, err);
   })
 }
 
@@ -90,7 +96,7 @@ export const patch = async (req: Request, res: Response) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({errors: errors.array()});
+    return requestValidationErrorResponse(res, errors.array());
   }
 
   const authUser = mapper.map(req.user, UserDto, UserType);
@@ -99,7 +105,7 @@ export const patch = async (req: Request, res: Response) => {
   const isTask = previousData = await taskRepository.findById(req.body.id);
 
   if (isTask && authUser.id.toString() !== isTask.creator._id.toString()) {
-    return res.status(400).send({error: "You cannot modify this task"});
+    return forbiddenResponse(res, "You cannot modify this task");
   }
 
   const updatedTask = {
@@ -112,33 +118,33 @@ export const patch = async (req: Request, res: Response) => {
   };
 
   taskRepository.update(req.body.id, updatedTask).then((task) => {
-    res.send(mapper.map(task, TaskDto, TaskType));
+    return successResponse(res, mapper.map(task, TaskDto, TaskType));
   }).catch((err) => {
-    res.send(err);
+    serverErrorResponse(res, err);
   })
 }
 
 export const destroy = async (req: Request, res: Response) => {
   if (!req.params.id) {
-    return res.status(400).send("No id provided");
+    return badRequestResponse(res, "Id is required");
   }
 
   const isTask = await taskRepository.findById(req.params.id);
 
   if (!isTask) {
-    return res.status(404).send("Task not found");
+    return notFoundResponse(res, "Task not found");
   }
 
   const authUser = mapper.map(req.user, UserDto, UserType);
 
   if (isTask.creator._id.toString() !== authUser.id.toString()) {
-    return res.status(403).send("You are not allowed to delete this task");
+    return forbiddenResponse(res, "You cannot delete this task");
   }
 
   taskRepository.delete(req.params.id).then((task) => {
-    res.send(mapper.map(task, TaskDto, TaskType));
+    return successResponse(res, mapper.map(task, TaskDto, TaskType));
   }).catch((err) => {
-    res.send(err);
+    return serverErrorResponse(res, err);
   })
 }
 

@@ -7,26 +7,33 @@ import UserRepository from "../../repositories/userRepository";
 import mapper from "../../lib/mapper";
 import UserDto from "../../mappings/dtos/user.dto";
 import UserType from "../../mappings/types/user.type";
+import {
+  badRequestResponse,
+  fieldValidationErrorResponse, forbiddenResponse,
+  requestValidationErrorResponse,
+  serverErrorResponse,
+  successResponse
+} from "../../lib/responseWapper";
 
 const userRepository = new UserRepository();
 
 export const index = async (req: Request, res: Response) => {
   userRepository.getAll().then((users) => {
-    res.send(users.map((user) => mapper.map(user, UserDto, UserType)));
+    return successResponse(res, users.map((user) => mapper.map(user, UserDto, UserType)));
   }).catch((err) => {
-    res.send(err);
+    return serverErrorResponse(res, err);
   })
 }
 
 export const show = async (req: Request, res: Response) => {
   if (!req.params.id) {
-    return res.status(400).send("No id provided");
+    return badRequestResponse(res, 'Id is required');
   }
 
   userRepository.findById(req.params.id).then((user) => {
-    res.send(mapper.map(user, UserDto, UserType));
+    return successResponse(res, mapper.map(user, UserDto, UserType));
   }).catch((err) => {
-    res.send(err);
+    return serverErrorResponse(res, err);
   })
 }
 
@@ -34,13 +41,13 @@ export const store = async (req: Request, res: Response) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({errors: errors.array()});
+    return requestValidationErrorResponse(res, errors.array());
   }
 
   const emailExist = await userRepository.findByEmail(req.body.email);
 
   if (emailExist) {
-    return res.status(400).send({error: "Email already taken"})
+    return fieldValidationErrorResponse(res, 'email', 'Email already exist');
   }
 
   const hash = bcrypt.hashSync(req.body.password, 10);
@@ -52,9 +59,9 @@ export const store = async (req: Request, res: Response) => {
   });
 
   userRepository.create(newUser).then((user) => {
-    res.send(mapper.map(user, UserDto, UserType))
+    return successResponse(res, mapper.map(user, UserDto, UserType));
   }).catch((err) => {
-    res.send(err);
+    return serverErrorResponse(res, err);
   });
 }
 
@@ -62,14 +69,14 @@ export const update = async (req: Request, res: Response) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({errors: errors.array()});
+    return requestValidationErrorResponse(res, errors.array());
   }
 
   const authUser = mapper.map(req.user, UserDto, UserType);
 
   const emailExist = await userRepository.findByEmail(req.body.email);
   if (emailExist && authUser.id !== emailExist.id) {
-    return res.status(400).send({error: "User with this email already exists"})
+    return fieldValidationErrorResponse(res, "email", "Email already taken");
   }
 
   const updatedUser = {
@@ -78,9 +85,9 @@ export const update = async (req: Request, res: Response) => {
   };
 
   userRepository.update(req.body.id, updatedUser).then((user) => {
-    res.send(mapper.map(user, UserDto, UserType));
+    return successResponse(res, mapper.map(user, UserDto, UserType));
   }).catch((err) => {
-    res.send(err);
+   return serverErrorResponse(res, err);
   })
 }
 
@@ -88,7 +95,7 @@ export const patch = async (req: Request, res: Response) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({errors: errors.array()});
+    return requestValidationErrorResponse(res, errors.array());
   }
 
   const authUser = mapper.map(req.user, UserDto, UserType);
@@ -97,7 +104,7 @@ export const patch = async (req: Request, res: Response) => {
     const emailExist = await userRepository.findByEmail(req.body.email);
 
     if (emailExist && authUser.id !== emailExist.id) {
-      return res.status(400).send({error: "User with this email already exists"})
+      return fieldValidationErrorResponse(res, "email", "Email already taken");
     }
   }
 
@@ -109,21 +116,21 @@ export const patch = async (req: Request, res: Response) => {
   };
 
   userRepository.update(req.body.id, updatedUser).then((user) => {
-    res.send(mapper.map(user, UserDto, UserType));
+    successResponse(res, mapper.map(user, UserDto, UserType));
   }).catch((err) => {
-    res.send(err);
+    serverErrorResponse(res, err);
   })
 }
 
 export const destroy = async (req: Request, res: Response) => {
   if (!req.params.id) {
-    return res.status(400).send("No id provided");
+    return forbiddenResponse(res, "No id provided");
   }
 
   userRepository.delete(req.params.id).then((user) => {
-    res.send(mapper.map(user, UserDto, UserType));
+    return successResponse(res, mapper.map(user, UserDto, UserType));
   }).catch((err) => {
-    res.send(err);
+    return serverErrorResponse(res, err);
   })
 }
 
