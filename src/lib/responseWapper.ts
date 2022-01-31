@@ -1,7 +1,7 @@
 import {Response} from "express";
-import {Result, ValidationError} from "express-validator";
+import {ValidationError} from "express-validator";
 
-export const successResponse = (res: Response, data: null | Record<string, any> | Record<string, any>[] = null) => {
+export const successResponse = (res: Response, data: null | Record<string, unknown> | Record<string, unknown>[] = null) => {
   return res.status(200).json({
     success: true,
     message: 'success',
