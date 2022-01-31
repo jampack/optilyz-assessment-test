@@ -97,7 +97,7 @@ export const validate = (method: string) => {
           min: 2,
           max: 100
         }),
-        body('email', 'Invalid email').notEmpty().isEmail(),
+        body('email', 'Invalid email').notEmpty().bail().isEmail(),
         body('password', 'Password is required').notEmpty(),
         body('password', 'Password has to be at least 8 characters and maximum of 100 characters').isLength({
           min: 8,
