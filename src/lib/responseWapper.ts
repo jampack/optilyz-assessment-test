@@ -14,10 +14,10 @@ export const fieldValidationErrorResponse = (res: Response, field: string, messa
   return res.status(422).json({
     success: false,
     message: 'validation error',
-    data: {
+    data: Array({
       field,
       message
-    }
+    })
   });
 };
 
