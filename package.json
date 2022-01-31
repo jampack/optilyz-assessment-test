@@ -15,8 +15,8 @@
         "start": "node .",
         "test": "cross-env NODE_ENV=test jest",
         "testwatch": "jest --watchAll",
-        "lint": "eslint . && tslint -c tslint.json -p tsconfig.json",
-        "lint:fix": "eslint . --fix && tslint -c tslint.json -p tsconfig.json --fix",
+        "lint": "eslint src && tslint -c tslint.json -p tsconfig.json",
+        "lint:fix": "eslint src --fix && tslint -c tslint.json -p tsconfig.json --fix",
         "precommit-msg": "echo 'Running pre-commit lint...' && exit 0"
     },
     "dependencies": {

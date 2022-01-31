@@ -1,7 +1,7 @@
 import {Response} from "express";
 import {ValidationError} from "express-validator";
 
-export const successResponse = (res: Response, data: null | Record<string, unknown> | Record<string, unknown>[] = null) => {
+export const successResponse = (res: Response, data: unknown = null) => {
   return res.status(200).json({
     success: true,
     message: 'success',
@@ -62,6 +62,14 @@ export const badRequestResponse = (res: Response, message: string) => {
 
 export const forbiddenResponse = (res: Response, message: string) => {
   return res.status(403).json({
+    success: false,
+    message,
+    data: null
+  });
+};
+
+export const unAuthorizedResponse = (res: Response, message = "Unauthorized") => {
+  return res.status(401).json({
     success: false,
     message,
     data: null
