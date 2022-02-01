@@ -6,7 +6,6 @@
     "esModuleInterop": true,
     "target": "ES2021",
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "noImplicitAny": true,
     "moduleResolution": "node",
     "sourceMap": true,

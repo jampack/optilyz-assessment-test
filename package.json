@@ -13,11 +13,11 @@
         "dev:start": "npm-run-all start",
         "dev": "cross-env NODE_ENV=development nodemon --watch src -e ts,ejs --exec npm run dev:start",
         "start": "node .",
-        "test": "cross-env NODE_ENV=test jest",
-        "testwatch": "jest --watchAll",
+        "test": "cross-env NODE_ENV=test jest --runInBand",
+        "test:watch": "jest --runInBand --watchAll",
         "lint": "eslint src && tslint -c tslint.json -p tsconfig.json",
         "lint:fix": "eslint src --fix && tslint -c tslint.json -p tsconfig.json --fix",
-        "precommit-msg": "echo 'Running pre-commit lint...' && exit 0"
+        "precommit-msg": "echo 'Running pre-commit tests and lint...' && exit 0"
     },
     "dependencies": {
         "@automapper/classes": "^7.2.1",
@@ -65,6 +65,7 @@
     },
     "pre-commit": [
         "precommit-msg",
+        "test",
         "lint"
     ]
 }
