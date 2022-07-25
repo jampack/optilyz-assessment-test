@@ -9,7 +9,6 @@ export const successResponse = (res: Response, data: unknown = null) => {
   });
 };
 
-
 export const fieldValidationErrorResponse = (res: Response, field: string, message: string) => {
   return res.status(422).json({
     success: false,
